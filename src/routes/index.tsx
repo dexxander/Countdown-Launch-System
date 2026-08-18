@@ -60,10 +60,6 @@ function LaunchControl() {
     window.setTimeout(() => setStatus("ready"), 4000);
   };
 
-  const openLive = () => {
-    window.open("/live", "_blank", "noopener,noreferrer");
-  };
-
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
       <div className="grid-floor pointer-events-none absolute inset-0 opacity-60" aria-hidden />
@@ -116,13 +112,14 @@ function LaunchControl() {
           </button>
         </div>
 
-        <button
-          type="button"
-          onClick={openLive}
-          className="mt-10 w-full rounded-xl border border-primary/40 bg-secondary/40 px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.25em] text-primary transition-colors hover:bg-secondary"
+        <a
+          href="/live"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-10 inline-flex w-full items-center justify-center rounded-xl border border-primary/40 bg-secondary/40 px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.25em] text-primary transition-colors hover:bg-secondary"
         >
           Open live countdown
-        </button>
+        </a>
         <p className="mt-3 text-xs text-muted-foreground">
           Open the live screen on the laptop, keep this panel on your phone.
         </p>
