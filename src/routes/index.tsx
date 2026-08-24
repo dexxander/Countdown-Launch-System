@@ -5,6 +5,7 @@ import {
   COUNTDOWN_FROM,
   LAUNCH_CHANNEL,
   LAUNCH_EVENT,
+  isValidLaunchUrl,
 } from "@/lib/launch-channel";
 
 export const Route = createFileRoute("/")({
@@ -31,6 +32,7 @@ type Status = "connecting" | "ready" | "sent" | "error";
 
 function LaunchControl() {
   const [status, setStatus] = useState<Status>("connecting");
+  const [targetUrl, setTargetUrl] = useState("");
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
@@ -50,11 +52,11 @@ function LaunchControl() {
 
   const launch = async () => {
     const channel = channelRef.current;
-    if (!channel) return;
+    if (!channel || !isValidLaunchUrl(targetUrl)) return;
     await channel.send({
       type: "broadcast",
       event: LAUNCH_EVENT,
-      payload: { startAt: Date.now(), from: COUNTDOWN_FROM },
+      payload: { startAt: Date.now(), from: COUNTDOWN_FROM, targetUrl },
     });
     setStatus("sent");
     window.setTimeout(() => setStatus("ready"), 4000);
@@ -63,18 +65,39 @@ function LaunchControl() {
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 py-16">
       <div className="grid-floor pointer-events-none absolute inset-0 opacity-60" aria-hidden />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,transparent,var(--background)_75%)]" aria-hidden />
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,transparent,var(--background)_75%)]"
+        aria-hidden
+      />
 
       <section className="panel relative z-10 w-full max-w-md rounded-3xl px-7 py-10 text-center">
-        <p className="font-display text-[0.7rem] tracking-[0.35em] text-primary">
-          MISSION CONTROL
-        </p>
-        <h1 className="launch-gradient-text mt-3 text-3xl font-bold uppercase">
-          Launch Console
-        </h1>
+        <p className="font-display text-[0.7rem] tracking-[0.35em] text-primary">MISSION CONTROL</p>
+        <h1 className="launch-gradient-text mt-3 text-3xl font-bold uppercase">Launch Console</h1>
         <p className="mt-3 text-sm text-muted-foreground">
-          Arm the display, then initiate the {COUNTDOWN_FROM}-second ignition sequence.
+          Enter the destination, arm the display, then initiate the {COUNTDOWN_FROM}-second ignition
+          sequence.
         </p>
+
+        <div className="mt-8 text-left">
+          <label
+            htmlFor="target-url"
+            className="font-display text-[0.65rem] tracking-[0.2em] text-primary uppercase"
+          >
+            Launch website
+          </label>
+          <input
+            id="target-url"
+            type="url"
+            value={targetUrl}
+            onChange={(event) => setTargetUrl(event.target.value)}
+            placeholder="https://your-website.com"
+            autoComplete="url"
+            className="mt-2 w-full rounded-xl border border-primary/30 bg-secondary/30 px-4 py-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/60 focus:border-primary"
+          />
+          {targetUrl.length > 0 && !isValidLaunchUrl(targetUrl) && (
+            <p className="mt-2 text-xs text-destructive">Enter a valid HTTPS website address.</p>
+          )}
+        </div>
 
         <div className="mt-8 flex items-center justify-center gap-2 text-xs tracking-[0.2em] uppercase">
           <span
@@ -102,7 +125,7 @@ function LaunchControl() {
           <button
             type="button"
             onClick={launch}
-            disabled={status !== "ready" && status !== "sent"}
+            disabled={!isValidLaunchUrl(targetUrl) || (status !== "ready" && status !== "sent")}
             className="relative flex h-40 w-40 flex-col items-center justify-center rounded-full border border-primary/60 bg-[var(--gradient-launch)] font-display text-lg font-bold uppercase tracking-[0.2em] text-primary-foreground shadow-[var(--glow-primary)] transition-transform duration-200 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <span>{status === "sent" ? "Launched" : "Initiate"}</span>
