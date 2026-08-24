@@ -15,7 +15,7 @@ export const Route = createFileRoute("/live")({
       {
         name: "description",
         content:
-          "Full-screen futuristic countdown display that launches the drone soccer system when the sequence hits zero.",
+          "Full-screen futuristic countdown display that opens any launch website when the sequence hits zero.",
       },
       { property: "og:title", content: "Live Launch Countdown — System Ignition Display" },
       {
@@ -142,7 +142,7 @@ function LiveCountdown() {
             System Launching
           </h1>
           <p className="mt-6 font-display text-xs tracking-[0.45em] text-primary uppercase md:text-sm">
-            Initializing Drone Soccer System
+            Initializing Launch System
           </p>
           <div className="mx-auto mt-10 h-1 w-72 overflow-hidden rounded-full bg-secondary/60">
             <div className="h-full w-full origin-left animate-[launch-burst_2.4s_linear_forwards] bg-[var(--gradient-launch)]" />

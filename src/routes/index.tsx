@@ -11,13 +11,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Launch Control — Drone Soccer System Ignition" },
+      { title: "Launch Control — General Launch System" },
       {
         name: "description",
         content:
           "Mission control panel: trigger the 5-second launch sequence on the live countdown display from your phone.",
       },
-      { property: "og:title", content: "Launch Control — Drone Soccer System Ignition" },
+      { property: "og:title", content: "Launch Control — General Launch System" },
       {
         property: "og:description",
         content:
