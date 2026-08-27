@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   COUNTDOWN_FROM,
-  LAUNCH_CHANNEL,
   LAUNCH_EVENT,
+  createRoomId,
+  getLaunchChannel,
   isValidLaunchUrl,
 } from "@/lib/launch-channel";
 
@@ -31,12 +32,13 @@ export const Route = createFileRoute("/")({
 type Status = "connecting" | "ready" | "sent" | "error";
 
 function LaunchControl() {
+  const [roomId] = useState(createRoomId);
   const [status, setStatus] = useState<Status>("connecting");
   const [targetUrl, setTargetUrl] = useState("");
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
   useEffect(() => {
-    const channel = supabase.channel(LAUNCH_CHANNEL, {
+    const channel = supabase.channel(getLaunchChannel(roomId), {
       config: { broadcast: { self: false } },
     });
     channelRef.current = channel;
@@ -48,7 +50,7 @@ function LaunchControl() {
       channelRef.current = null;
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [roomId]);
 
   const launch = async () => {
     const channel = channelRef.current;
@@ -136,7 +138,7 @@ function LaunchControl() {
         </div>
 
         <a
-          href="/live"
+          href={`/live?room=${encodeURIComponent(roomId)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="mt-10 inline-flex w-full items-center justify-center rounded-xl border border-primary/40 bg-secondary/40 px-5 py-3 font-display text-xs font-semibold uppercase tracking-[0.25em] text-primary transition-colors hover:bg-secondary"

@@ -3,9 +3,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   COUNTDOWN_FROM,
-  LAUNCH_CHANNEL,
   LAUNCH_EVENT,
+  getLaunchChannel,
   isValidLaunchUrl,
+  isValidRoomId,
 } from "@/lib/launch-channel";
 
 export const Route = createFileRoute("/live")({
@@ -30,6 +31,10 @@ export const Route = createFileRoute("/live")({
 type Phase = "idle" | "counting" | "launching";
 
 function LiveCountdown() {
+  const [roomId] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return new URLSearchParams(window.location.search).get("room") ?? "";
+  });
   const [phase, setPhase] = useState<Phase>("idle");
   const [count, setCount] = useState(COUNTDOWN_FROM);
   const [connected, setConnected] = useState(false);
@@ -62,7 +67,9 @@ function LiveCountdown() {
   );
 
   useEffect(() => {
-    const channel = supabase.channel(LAUNCH_CHANNEL, {
+    if (!isValidRoomId(roomId)) return;
+
+    const channel = supabase.channel(getLaunchChannel(roomId), {
       config: { broadcast: { self: false } },
     });
     channel
@@ -77,7 +84,7 @@ function LiveCountdown() {
       clearTimers();
       supabase.removeChannel(channel);
     };
-  }, [clearTimers, startSequence]);
+  }, [clearTimers, roomId, startSequence]);
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
